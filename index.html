@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayMaster Pro - FIXED</title>
+<style>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;background:#f2f4f7}
+.hidden{display:none!important}
+.sidebar{width:235px;background:#1a2a3a;color:white;min-height:100vh;padding:15px;position:fixed;left:0;top:0}
+.sidebar button{display:block;width:100%;text-align:left;background:transparent;color:white;border:none;padding:12px;border-radius:8px;margin:4px 0;font-weight:bold;cursor:pointer}
+.sidebar button:hover{background:#2e86de}
+.main{margin-left:245px;padding:18px}
+.card{display:inline-block;width:22%;min-width:160px;padding:16px;border-radius:12px;color:white;margin:6px}
+.card p{font-size:19px;font-weight:900}
+input,select{padding:10px;margin:5px;border:1px solid #ccc;border-radius:8px;width:220px}
+button.btn{padding:11px 16px;border:none;border-radius:8px;color:white;font-weight:bold;cursor:pointer;background:#2e86de}
+.btn.green{background:#27ae60}.btn.red{background:#c0392b}.btn.purple{background:#8e44ad}.btn.orange{background:#f39c12}.btn.whatsapp{background:#25D366}.btn.black{background:#333}
+table{width:100%;border-collapse:collapse;background:white;margin-top:10px}
+th,td{padding:10px;border-bottom:1px solid #eee;text-align:left;font-size:13px}th{background:#1a2a3a;color:white}
+.box{background:white;padding:15px;border-radius:12px;margin:10px 0}
+.calc-box{background:#e8f8f5;padding:14px;border-radius:10px;margin:10px 0;font-weight:bold}
+.center{max-width:470px;margin:70px auto;background:white;padding:25px;border-radius:16px;text-align:center}
+#printArea{display:none}
+@media print{body{background:white}.sidebar,.no-print{display:none!important}.main{margin:0}#printArea{display:block!important}#app{display:none!important}}
+</style>
+</head>
+<body>
+<div id="printArea"></div>
+<div id="licensePage" class="center">
+<h1>🔑 PayMaster License</h1>
+<p>Enter License Key to Activate</p>
+<input id="licInput" placeholder="e.g PAYMASTER-X7K9-Q2M4-PRO-2026" style="width:90%">
+<br><button class="btn green no-print" onclick="checkLicense()" style="width:90%;margin-top:10px">✅ Activate License</button>
+<p style="font-size:12px">Master Key: PAYMASTER-X7K9-Q2M4-PRO-2026<br>URA 2026/27 FIXED</p>
+</div>
+<div id="loginPage" class="center hidden">
+<h1>💼 PayMaster</h1>
+<h3 id="loginCompany">Your Company Ltd</h3>
+<p>💰 Payroll & 👨‍💼 Staff Management | URA 2026/27</p>
+<input id="loginUser" value="admin" style="width:90%"><br>
+<input id="loginPass" value="admin123" type="password" style="width:90%"><br>
+<button class="btn no-print" onclick="doLogin()" style="width:90%;margin-top:10px">🔐 Login</button>
+<p style="font-size:12px">Default: admin / admin123</p>
+</div>
+<div id="app" class="hidden">
+<div class="sidebar no-print">
+<h2>💼 PayMaster</h2>
+<p id="sideCompany" style="color:#aebfd0;font-size:12px"></p>
+<p>👤 Hi, Admin</p>
+<p id="sideTerm" style="color:#aebfd0;font-size:12px"></p>
+<button onclick="showPage('dashboard')">🏠 Dashboard</button>
+<button onclick="showPage('employees')">👨‍💼 Employees</button>
+<button onclick="showPage('payroll')">💰 Run Payroll</button>
+<button onclick="showPage('payslips')">🧾 Payslips</button>
+<button onclick="showPage('reports')">📊 Reports</button>
+<button onclick="showPage('attendance')">🗓️ Attendance & Leave</button>
+<button onclick="showPage('notifications')">🔔 Notifications</button>
+<button onclick="showPage('settings')">⚙️ Settings</button>
+<br><button class="btn green" onclick="backupData()">💾 Backup Data</button>
+<button class="btn red" onclick="logout()">🚪 Logout</button>
+</div>
+<div class="main">
+<div id="page-dashboard">
+<h2>🏠 Dashboard Overview</h2>
+<div id="dashCards"></div>
+<div class="box no-print"><h3>⚡ Quick Actions</h3>
+<button class="btn green" onclick="showPage('payroll')">💰 Run Payroll</button>
+<button class="btn" onclick="showPage('employees')">👨‍💼 Add Employee</button>
+<button class="btn purple" onclick="showPage('payslips')">🧾 Payslips</button>
+<button class="btn black" onclick="printDashboard()">🖨️ Print Dashboard Report</button>
+</div>
+<div class="box"><h3>👥 Recent Employees</h3><div id="recentEmp"></div></div>
+</div><div id="page-employees" class="hidden">
+<h2>👨‍💼 Employees Management</h2>
+<div class="box no-print">
+<input id="searchEmp" placeholder="🔍 Search..." oninput="renderEmployees()" style="width:55%">
+<button class="btn" onclick="renderEmployees()">Search</button>
+<button class="btn red" onclick="deleteSelected()">🗑️ Delete Selected</button>
+<button class="btn black" onclick="printDashboard()">🖨️ Print Staff List</button>
+</div>
+<div class="box no-print">
+<input id="e_no" placeholder="Emp No e.g EMP001">
+<input id="e_name" placeholder="Full Name">
+<select id="e_dept"><option>Finance</option><option>Teaching</option><option>Admin</option><option>IT</option><option>HR</option><option>Operations</option></select><br>
+<input id="e_title" placeholder="Title e.g Accountant">
+<input id="e_phone" placeholder="Phone">
+<input id="e_nin" placeholder="NIN"><br>
+<input id="e_bank" placeholder="Bank / MoMo">
+<input id="e_basic" type="number" placeholder="Basic Salary">
+<input id="e_trans" type="number" placeholder="Transport"><br>
+<input id="e_house" type="number" placeholder="Housing">
+<input id="e_lunch" type="number" placeholder="Lunch">
+<br><button class="btn green" onclick="addEmployee()">✅ Add Employee</button>
+</div>
+<table><thead><tr><th>EmpNo</th><th>Name</th><th>Dept</th><th>Title</th><th>Basic</th><th>Phone</th><th class="no-print">Select</th></tr></thead><tbody id="empBody"></tbody></table>
+</div>
+
+<div id="page-payroll" class="hidden">
+<h2>💰 Run Monthly Payroll - URA 2026/27 FIXED</h2>
+<p style="background:#fff3cd;padding:10px;border-radius:8px">✅ FIXED: NSSF 5% of GROSS | PAYE on GROSS | Tax-free 335k</p>
+<div class="box no-print">
+Month: <select id="p_month"><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option selected>November</option><option>December</option></select>
+Year: <input id="p_year" value="2026" style="width:100px">
+<button class="btn green" onclick="generatePayroll()">⚡ Generate Payroll For All</button>
+<button class="btn black" onclick="printPayroll()">🖨️ Print Payroll</button>
+<button class="btn" onclick="renderPayroll()">🔄 Refresh</button>
+</div>
+<div class="calc-box no-print">
+<h3>🧮 Single Employee Calculator - LIVE</h3>
+Select Staff: <select id="calc_emp" onchange="loadCalcEmp()" style="width:260px"><option value="">-- Select Staff --</option></select><br>
+Basic: <input id="calc_basic" type="number" placeholder="Basic" oninput="updateCalc()">
+Transport: <input id="calc_trans" type="number" placeholder="Transport" oninput="updateCalc()"><br>
+Housing: <input id="calc_house" type="number" placeholder="Housing" oninput="updateCalc()">
+Lunch: <input id="calc_lunch" type="number" placeholder="Lunch" oninput="updateCalc()"><br>
+Loan: <input id="calc_loan" type="number" placeholder="Loan (0)" value="0" oninput="updateCalc()">
+Other: <input id="calc_other" type="number" placeholder="Other (0)" value="0" oninput="updateCalc()"><br>
+<div id="calcResult" style="color:#1a5276;margin-top:8px">💰 Gross: - | 🧾 NSSF: - | 🏛️ PAYE: - | 🧾 LST: - | ✅ NET: -</div>
+<button class="btn purple" onclick="saveSinglePayroll()" style="margin-top:8px">💾 Save This Single Payroll</button>
+<button class="btn black" onclick="printCurrentPayslip()" style="margin-top:8px">🖨️ Print This Payslip</button>
+</div>
+<div id="receiptBox" class="hidden box">
+<h3>✅ Payroll Saved!</h3><pre id="payslipText" style="white-space:pre-wrap"></pre>
+<p id="notifText"></p>
+<button class="btn whatsapp no-print" onclick="copyNotif()">📋 Copy Notification</button>
+<button class="btn black no-print" onclick="printCurrentPayslip()">🖨️ Print This Payslip</button>
+</div>
+<table><thead><tr><th>Name</th><th>Gross</th><th>NSSF</th><th>PAYE</th><th>LST</th><th>Other</th><th>Net</th></tr></thead><tbody id="payBody"></tbody></table>
+</div>
+
+<div id="page-payslips" class="hidden">
+<h2>🧾 Payslips</h2>
+<div class="box no-print"><button class="btn black" onclick="printSelectedPayslip()">🖨️ Print Selected Payslip</button></div>
+<table><thead><tr><th>Name</th><th>Month</th><th>Year</th><th>Gross</th><th>Deductions</th><th>Net</th><th class="no-print">Action</th></tr></thead><tbody id="payslipBody"></tbody></table>
+<div id="payslipDetail" class="hidden box"><h3>🧾 Payslip Detail</h3><pre id="payslipDetailText" style="white-space:pre-wrap"></pre>
+<button class="btn whatsapp no-print" onclick="copyPayslip()">📋 Copy Payslip</button>
+<button class="btn black no-print" onclick="printCurrentPayslip()">🖨️ Print Payslip</button></div>
+</div><div id="page-reports" class="hidden">
+<h2>📊 Payroll Reports - For Director / Boss</h2>
+<div class="box no-print">
+<button class="btn green" onclick="reportThisMonth()">💰 This Month Payroll</button>
+<button class="btn orange" onclick="reportPerDept()">🏢 Per Department</button>
+<button class="btn purple" onclick="reportDirector()">📋 Director Summary</button>
+<button class="btn" onclick="reportAllStaff()">👥 All Staff List</button>
+<button class="btn black" onclick="printCurrentReport()">🖨️ Print Current Report</button>
+</div>
+<p id="reportLabel" style="font-weight:bold"></p>
+<table><thead><tr><th>Name</th><th>Dept</th><th>Gross</th><th>NSSF</th><th>PAYE</th><th>LST</th><th>Net</th></tr></thead><tbody id="reportBody"></tbody></table>
+</div>
+
+<div id="page-attendance" class="hidden">
+<h2>🗓️ Attendance & Leave</h2>
+<div class="box no-print">
+Select Staff: <select id="att_emp" style="width:260px"></select>
+Status: <select id="att_status"><option>Present ✅</option><option>Absent ❌</option><option>On Leave 🏖️</option><option>Late ⏰</option><option>Sick 🤒</option></select>
+<button class="btn green" onclick="markAttendance()">✅ Mark Attendance</button>
+<button class="btn black" onclick="printAttendance()">🖨️ Print Attendance</button>
+</div>
+<div class="box"><h3>🗓️ Attendance Log</h3><div id="attLog"></div></div>
+</div>
+
+<div id="page-notifications" class="hidden">
+<h2>🔔 Notifications to Staff</h2>
+<div class="box"><p id="notifPageText">No payroll yet. Run payroll first.</p><button class="btn whatsapp no-print" onclick="copyNotif()">📋 Copy Notification</button></div>
+<div class="box"><h3>🧾 Last Payslip</h3><p id="lastPayslipText">No payslip yet.</p><button class="btn black no-print" onclick="printCurrentPayslip()">🖨️ Print Last Payslip</button></div>
+</div>
+
+<div id="page-settings" class="hidden">
+<h2>⚙️ Settings</h2>
+<div class="box no-print">
+Company: <input id="set_company" value="Your Company Ltd"><br>
+Currency: <select id="set_curr"><option>UGX</option><option>KES</option><option>USD</option></select><br>
+Month: <select id="set_month"><option>January</option><option>February</option><option>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option selected>November</option><option>December</option></select><br>
+Year: <input id="set_year" value="2026"><br>
+<button class="btn green" onclick="saveSettings()">💾 Save Settings</button>
+</div>
+<div class="box"><h3>📜 Tax Info - URA 2026/27</h3><p>NSSF: 5% of GROSS | PAYE: 0% up to 335k, 20% to 410k, 25% to 485k, 30% above 485k, 40% above 10M | LST: 5k-40k</p></div>
+</div>
+</div>
+</div>
+
+<script>
+const VALID_LICENSES=["PAYMASTER-X7K9-Q2M4-PRO-2026","PAYMASTER-Z8P3-V6N2-ISAAC-2026","PAYMASTER-M4T8-K9Q2-COMPANY-001","PAYMASTER-H5J7-D3F9-STAFF-2026","PAYMASTER-R2W8-L6Y4-SALARY-MAX","PAYMASTER-K9X3-P7B5-PAYROLL-2026","PAYMASTER-Q4N6-T8V2-UG-2026","PAYMASTER-B7C2-S9M5-BOSS-2026","PAYMASTER-J3F8-A6D4-CASH-2026","PAYMASTER-V9L2-N5R7-MASTER-2026"];
+let employees=JSON.parse(localStorage.getItem('pay_employees')||'[]');
+let payrolls=JSON.parse(localStorage.getItem('pay_payrolls_fixed')||'[]');
+let attendance=JSON.parse(localStorage.getItem('pay_attendance')||'[]');
+let settings=JSON.parse(localStorage.getItem('pay_settings')||'{"company":"Your Company Ltd","currency":"UGX","month":"November","year":"2026"}');
+let lastNotif="", lastPayslip="", lastPayslipData=null, currentReportTitle="Payroll Report", currentReportRows=[];
+function saveAll(){localStorage.setItem('pay_employees',JSON.stringify(employees));localStorage.setItem('pay_payrolls_fixed',JSON.stringify(payrolls));localStorage.setItem('pay_attendance',JSON.stringify(attendance));localStorage.setItem('pay_settings',JSON.stringify(settings));}
+function checkLicense(){let k=document.getElementById('licInput').value.trim(); if(VALID_LICENSES.includes(k)){localStorage.setItem('pay_license',k); alert('✅ Activated!'); document.getElementById('licensePage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden');} else alert('❌ Wrong License Key');}
+if(localStorage.getItem('pay_license') && VALID_LICENSES.includes(localStorage.getItem('pay_license'))){document.getElementById('licensePage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden');}
+function doLogin(){if(document.getElementById('loginUser').value==='admin' && document.getElementById('loginPass').value==='admin123'){document.getElementById('loginPage').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); document.getElementById('loginCompany').innerText=settings.company; document.getElementById('sideCompany').innerText=settings.company; document.getElementById('sideTerm').innerText=settings.month+' '+settings.year+' | '+settings.currency; document.getElementById('p_month').value=settings.month; document.getElementById('p_year').value=settings.year; showPage('dashboard');} else alert('Wrong login');}
+function logout(){document.getElementById('app').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden');}
+function showPage(p){['dashboard','employees','payroll','payslips','reports','attendance','notifications','settings'].forEach(x=>document.getElementById('page-'+x).classList.add('hidden')); document.getElementById('page-'+p).classList.remove('hidden'); if(p==='dashboard') renderDashboard(); if(p==='employees') renderEmployees(); if(p==='payroll'){refreshCalcEmp(); renderPayroll();} if(p==='payslips') renderPayslips(); if(p==='attendance') refreshAttEmp(); if(p==='notifications'){document.getElementById('notifPageText').innerText=lastNotif||'No payroll yet.'; document.getElementById('lastPayslipText').innerText=lastPayslip||'No payslip yet.';}}
+function calcPAYE(g){if(g<=335000) return 0; if(g<=410000) return (g-335000)*0.20; if(g<=485000) return 15000+(g-410000)*0.25; if(g<=10000000) return 33750+(g-485000)*0.30; return 2888250+(g-10000000)*0.40;}
+function calcLST(g){if(g<100000) return 0; if(g<200000) return 5000; if(g<300000) return 10000; if(g<400000) return 20000; if(g<500000) return 30000; return 40000;}
+function calcPay(b,t,h,l,loan,oth){let al=t+h+l; let gr=b+al; let nssf=gr*0.05; let paye=calcPAYE(gr); let lst=calcLST(gr); let ded=nssf+paye+lst+loan+oth; return {allowances:al,gross:gr,nssf,paye,lst,ded,net:gr-ded};}
+function doPrint(title,html){let a=document.getElementById('printArea'); a.innerHTML=`<h1 style="text-align:center">${title}</h1><p><b>Company:</b> ${settings.company} | <b>Month:</b> ${settings.month} ${settings.year} | <b>Date:</b> ${new Date().toLocaleDateString()}</p>${html}<br><p>Prepared by: _______________ &nbsp; Approved by: _______________</p><p>PayMaster Pro - Isaac Savvy Soft</p>`; window.print();}
+function printDashboard(){let rows=employees.map(e=>`<tr><td>${e.no}</td><td>${e.name}</td><td>${e.dept}</td><td>${e.title}</td><td>${settings.currency} ${Number(e.basic).toLocaleString()}</td></tr>`).join(''); doPrint(settings.company+' - Staff List', `<table border="1" style="width:100%;border-collapse:collapse"><tr><th>Emp No</th><th>Name</th><th>Dept</th><th>Title</th><th>Basic</th></tr>${rows}</table>`);}
+function printPayroll(){let m=document.getElementById('p_month').value, y=document.getElementById('p_year').value; let list=payrolls.filter(p=>p.month===m && p.year===y); if(!list.length) return alert('No payroll. Generate first.'); let tg=list.reduce((a,b)=>a+Number(b.gross),0), tn=list.reduce((a,b)=>a+Number(b.net),0); let rows=list.map(p=>`<tr><td>${p.no}</td><td>${p.name}</td><td>${p.dept}</td><td>${Number(p.gross).toLocaleString()}</td><td>${Number(p.nssf).toLocaleString()}</td><td>${Number(p.paye).toLocaleString()}</td><td>${Number(p.lst).toLocaleString()}</td><td>${Number(p.net).toLocaleString()}</td></tr>`).join(''); doPrint(settings.company+` - Payroll - ${m} ${y}`, `<p>Staff: ${list.length} | Gross: ${settings.currency} ${tg.toLocaleString()} | Net: ${settings.currency} ${tn.toLocaleString()}</p><table border="1" style="width:100%;border-collapse:collapse"><tr><th>Emp No</th><th>Name</th><th>Dept</th><th>Gross</th><th>NSSF</th><th>PAYE</th><th>LST</th><th>Net</th></tr>${rows}</table>`);}
+function printCurrentPayslip(){if(!lastPayslipData) return alert('Save payroll first, then Print'); let d=lastPayslipData; doPrint(settings.company+` - Payslip - ${d.name} - ${d.month} ${d.year}`, `<p><b>Staff:</b> ${d.name} (${d.no}) | <b>Dept:</b> ${d.dept}</p><table border="1" style="width:100%;border-collapse:collapse"><tr><th>Earnings</th><th>Amount</th></tr><tr><td>Basic</td><td>${settings.currency} ${Number(d.basic).toLocaleString()}</td></tr><tr><td>Allowances</td><td>${settings.currency} ${Number(d.allow).toLocaleString()}</td></tr><tr><td><b>Gross</b></td><td><b>${settings.currency} ${Number(d.gross).toLocaleString()}</b></td></tr></table><br><table border="1" style="width:100%;border-collapse:collapse"><tr><th>Deductions</th><th>Amount</th></tr><tr><td>NSSF 5% Gross</td><td>${settings.currency} ${Number(d.nssf).toLocaleString()}</td></tr><tr><td>PAYE URA 2026/27</td><td>${settings.currency} ${Number(d.paye).toLocaleString()}</td></tr><tr><td>LST</td><td>${settings.currency} ${Number(d.lst).toLocaleString()}</td></tr><tr><td>Other</td><td>${settings.currency} ${Number(d.other).toLocaleString()}</td></tr></table><h2>✅ NET PAY: ${settings.currency} ${Number(d.net).toLocaleString()}</h2><p>Signature: _______________</p>`);}
+function printSelectedPayslip(){if(!lastPayslipData) return alert('Click View on a payslip first, then Print'); printCurrentPayslip();}
+function printCurrentReport(){if(!currentReportRows.length) return alert('Generate a report first, then Print'); let rows=currentReportRows.map(r=>`<tr><td>${r.join('</td><td>')}</td></tr>`).join(''); doPrint(settings.company+' - '+currentReportTitle, `<p>${document.getElementById('reportLabel').innerText}</p><table border="1" style="width:100%;border-collapse:collapse"><tr><th>Name</th><th>Dept</th><th>Gross</th><th>NSSF</th><th>PAYE</th><th>LST</th><th>Net</th></tr>${rows}</table>`);}
+function printAttendance(){let rows=attendance.map(a=>`<tr><td>${a}</td></tr>`).join(''); doPrint(settings.company+' - Attendance Report', `<table border="1" style="width:100%;border-collapse:collapse"><tr><th>Date - Staff - Status</th></tr>${rows}</table>`);}function renderDashboard(){let ts=employees.length; let mp=payrolls.filter(p=>p.month===settings.month && p.year===settings.year).reduce((a,b)=>a+Number(b.net),0); let gm=payrolls.filter(p=>p.month===settings.month && p.year===settings.year).reduce((a,b)=>a+Number(b.gross),0); let pc=payrolls.filter(p=>p.month===settings.month && p.year===settings.year).length; let pend=Math.max(0,ts-pc); let tb=employees.reduce((a,b)=>a+Number(b.basic||0),0); document.getElementById('dashCards').innerHTML=`<div class="card" style="background:#2e86de"><h3>👨‍💼 Active Staff</h3><p>${ts}</p></div><div class="card" style="background:#27ae60"><h3>💰 This Month Payroll</h3><p>${settings.currency} ${mp.toLocaleString()}</p></div><div class="card" style="background:#8e44ad"><h3>📈 Gross This Month</h3><p>${settings.currency} ${gm.toLocaleString()}</p></div><div class="card" style="background:#c0392b"><h3>⏳ Pending</h3><p>${pend} Staff</p></div><div class="card" style="background:#f39c12"><h3>💼 Total Basic</h3><p>${settings.currency} ${tb.toLocaleString()}</p></div>`; document.getElementById('recentEmp').innerHTML=employees.slice(-5).map(e=>`<p>👨‍💼 ${e.name} - ${e.dept} - ${e.title} - ${settings.currency} ${Number(e.basic).toLocaleString()}</p>`).join('')||'No staff yet';}
+function addEmployee(){let name=document.getElementById('e_name').value.trim(), no=document.getElementById('e_no').value.trim(); if(!name||!no) return alert('Emp No and Name required'); employees.unshift({no,name,dept:document.getElementById('e_dept').value,title:document.getElementById('e_title').value,phone:document.getElementById('e_phone').value,nin:document.getElementById('e_nin').value,bank:document.getElementById('e_bank').value,basic:Number(document.getElementById('e_basic').value||0),trans:Number(document.getElementById('e_trans').value||0),house:Number(document.getElementById('e_house').value||0),lunch:Number(document.getElementById('e_lunch').value||0)}); saveAll(); renderEmployees(); alert('✅ Employee Added');}
+function renderEmployees(){let q=(document.getElementById('searchEmp').value||'').toLowerCase(); let list=employees.filter(e=>e.name.toLowerCase().includes(q)||e.no.toLowerCase().includes(q)||e.dept.toLowerCase().includes(q)); document.getElementById('empBody').innerHTML=list.map(e=>`<tr><td>${e.no}</td><td>${e.name}</td><td>${e.dept}</td><td>${e.title}</td><td>${Number(e.basic).toLocaleString()}</td><td>${e.phone}</td><td class="no-print"><input type="checkbox" data-no="${e.no}" class="selEmp"></td></tr>`).join('');}
+function deleteSelected(){let c=[...document.querySelectorAll('.selEmp:checked')].map(x=>x.dataset.no); if(!c.length) return alert('Select employee'); if(!confirm('Delete?')) return; employees=employees.filter(e=>!c.includes(e.no)); payrolls=payrolls.filter(p=>!c.includes(p.no)); saveAll(); renderEmployees();}
+function refreshCalcEmp(){let s=document.getElementById('calc_emp'); let a=document.getElementById('att_emp'); s.innerHTML='<option value="">-- Select Staff --</option>'+employees.map(e=>`<option value="${e.no}">${e.name} (${e.no})</option>`).join(''); a.innerHTML=employees.map(e=>`<option value="${e.no}">${e.name} (${e.no})</option>`).join('');}
+function loadCalcEmp(){let no=document.getElementById('calc_emp').value; let e=employees.find(x=>x.no===no); if(!e) return; document.getElementById('calc_basic').value=e.basic; document.getElementById('calc_trans').value=e.trans; document.getElementById('calc_house').value=e.house; document.getElementById('calc_lunch').value=e.lunch; updateCalc();}
+function updateCalc(){let b=Number(document.getElementById('calc_basic').value||0), t=Number(document.getElementById('calc_trans').value||0), h=Number(document.getElementById('calc_house').value||0), l=Number(document.getElementById('calc_lunch').value||0), loan=Number(document.getElementById('calc_loan').value||0), oth=Number(document.getElementById('calc_other').value||0); let r=calcPay(b,t,h,l,loan,oth); document.getElementById('calcResult').innerText=`💰 Gross: ${settings.currency} ${r.gross.toLocaleString()} | 🧾 NSSF: ${settings.currency} ${r.nssf.toLocaleString()} | 🏛️ PAYE: ${settings.currency} ${r.paye.toLocaleString()} | 🧾 LST: ${settings.currency} ${r.lst.toLocaleString()} | ✅ NET: ${settings.currency} ${r.net.toLocaleString()}`;}
+function saveSinglePayroll(){let no=document.getElementById('calc_emp').value; let e=employees.find(x=>x.no===no); if(!e) return alert('Select staff'); let b=Number(document.getElementById('calc_basic').value||0), t=Number(document.getElementById('calc_trans').value||0), h=Number(document.getElementById('calc_house').value||0), l=Number(document.getElementById('calc_lunch').value||0), loan=Number(document.getElementById('calc_loan').value||0), oth=Number(document.getElementById('calc_other').value||0); let r=calcPay(b,t,h,l,loan,oth); let m=document.getElementById('p_month').value, y=document.getElementById('p_year').value; payrolls=payrolls.filter(p=>!(p.no===no && p.month===m && p.year===y)); payrolls.push({no,name:e.name,dept:e.dept,month:m,year:y,basic:b,allow:r.allowances,gross:r.gross,nssf:r.nssf,paye:r.paye,lst:r.lst,other:loan+oth,net:r.net}); saveAll(); lastNotif=`Dear ${e.name}, your salary for ${m} ${y} has been processed. Gross: ${settings.currency} ${r.gross.toLocaleString()}. Net: ${settings.currency} ${r.net.toLocaleString()}. Thank you - ${settings.company}`; lastPayslip=`===== ${settings.company} =====\n🧾 PAYSLIP - ${m} ${y}\nStaff: ${e.name} (${e.no})\nGross: ${settings.currency} ${r.gross.toLocaleString()}\nNSSF: ${settings.currency} ${r.nssf.toLocaleString()}\nPAYE: ${settings.currency} ${r.paye.toLocaleString()}\nLST: ${settings.currency} ${r.lst.toLocaleString()}\n✅ NET: ${settings.currency} ${r.net.toLocaleString()}`; lastPayslipData={no,name:e.name,dept:e.dept,month:m,year:y,basic:b,allow:r.allowances,gross:r.gross,nssf:r.nssf,paye:r.paye,lst:r.lst,other:loan+oth,net:r.net}; document.getElementById('receiptBox').classList.remove('hidden'); document.getElementById('payslipText').innerText=lastPayslip; document.getElementById('notifText').innerText=lastNotif; renderPayroll(); if(confirm('✅ Saved for '+e.name+' Net: '+settings.currency+' '+r.net.toLocaleString()+'\n\nPrint payslip now?')) printCurrentPayslip();}
+function generatePayroll(){let m=document.getElementById('p_month').value, y=document.getElementById('p_year').value; payrolls=payrolls.filter(p=>!(p.month===m && p.year===y)); employees.forEach(e=>{let r=calcPay(Number(e.basic),Number(e.trans),Number(e.house),Number(e.lunch),0,0); payrolls.push({no:e.no,name:e.name,dept:e.dept,month:m,year:y,basic:e.basic,allow:r.allowances,gross:r.gross,nssf:r.nssf,paye:r.paye,lst:r.lst,other:0,net:r.net});}); saveAll(); renderPayroll(); if(confirm('✅ Payroll for '+m+' '+y+' Generated!\n\nPrint full payroll now?')) printPayroll();}
+function renderPayroll(){let m=document.getElementById('p_month').value, y=document.getElementById('p_year').value; let list=payrolls.filter(p=>p.month===m && p.year===y); document.getElementById('payBody').innerHTML=list.map(p=>`<tr><td>${p.name}</td><td>${Number(p.gross).toLocaleString()}</td><td>${Number(p.nssf).toLocaleString()}</td><td>${Number(p.paye).toLocaleString()}</td><td>${Number(p.lst).toLocaleString()}</td><td>${Number(p.other).toLocaleString()}</td><td>${Number(p.net).toLocaleString()}</td></tr>`).join('');}
+function renderPayslips(){document.getElementById('payslipBody').innerHTML=payrolls.slice(-50).reverse().map(p=>`<tr><td>${p.name}</td><td>${p.month}</td><td>${p.year}</td><td>${Number(p.gross).toLocaleString()}</td><td>${(Number(p.nssf)+Number(p.paye)+Number(p.lst)+Number(p.other)).toLocaleString()}</td><td>${Number(p.net).toLocaleString()}</td><td class="no-print"><button class="btn purple" onclick="viewPayslip(${payrolls.indexOf(p)})">👁️ View</button></td></tr>`).join('');}
+function viewPayslip(idx){let p=payrolls[idx]; lastPayslip=`===== ${settings.company} =====\n🧾 PAYSLIP - ${p.month} ${p.year}\nStaff: ${p.name} (${p.no})\nGross: ${settings.currency} ${Number(p.gross).toLocaleString()}\nNSSF: ${settings.currency} ${Number(p.nssf).toLocaleString()}\nPAYE: ${settings.currency} ${Number(p.paye).toLocaleString()}\nLST: ${settings.currency} ${Number(p.lst).toLocaleString()}\n✅ NET: ${settings.currency} ${Number(p.net).toLocaleString()}`; lastNotif=`Dear ${p.name}, your salary for ${p.month} ${p.year} is ${settings.currency} ${Number(p.net).toLocaleString()} Net. Thank you - ${settings.company}`; lastPayslipData={no:p.no,name:p.name,dept:p.dept,month:p.month,year:p.year,basic:p.basic,allow:p.allow,gross:p.gross,nssf:p.nssf,paye:p.paye,lst:p.lst,other:p.other,net:p.net}; document.getElementById('payslipDetail').classList.remove('hidden'); document.getElementById('payslipDetailText').innerText=lastPayslip;}
+function copyPayslip(){navigator.clipboard.writeText(lastPayslip); alert('📋 Payslip copied!');}
+function copyNotif(){navigator.clipboard.writeText(lastNotif||document.getElementById('notifText').innerText); alert('📋 Notification copied! Paste in WhatsApp');}
+function reportThisMonth(){let list=payrolls.filter(p=>p.month===settings.month && p.year===settings.year); let total=list.reduce((a,b)=>a+Number(b.net),0); document.getElementById('reportLabel').innerText=`💰 ${settings.month} ${settings.year}: ${list.length} Staff | Total Net: ${settings.currency} ${total.toLocaleString()}`; document.getElementById('reportBody').innerHTML=list.map(p=>`<tr><td>${p.name}</td><td>${p.dept}</td><td>${Number(p.gross).toLocaleString()}</td><td>${Number(p.nssf).toLocaleString()}</td><td>${Number(p.paye).toLocaleString()}</td><td>${Number(p.lst).toLocaleString()}</td><td>${Number(p.net).toLocaleString()}</td></tr>`).join(''); currentReportTitle=`This Month Payroll - ${settings.month} ${settings.year}`; currentReportRows=list.map(p=>[p.name,p.dept,Number(p.gross).toLocaleString(),Number(p.nssf).toLocaleString(),Number(p.paye).toLocaleString(),Number(p.lst).toLocaleString(),Number(p.net).toLocaleString()]);}
+function reportPerDept(){let depts=[...new Set(employees.map(e=>e.dept))]; document.getElementById('reportLabel').innerText='🏢 Per Department Report'; document.getElementById('reportBody').innerHTML=depts.map(d=>{let list=payrolls.filter(p=>p.dept===d && p.month===settings.month && p.year===settings.year); let gr=list.reduce((a,b)=>a+Number(b.gross),0), net=list.reduce((a,b)=>a+Number(b.net),0); return `<tr><td>${d} (${list.length} staff)</td><td>${d}</td><td>${gr.toLocaleString()}</td><td>-</td><td>-</td><td>-</td><td>${net.toLocaleString()}</td></tr>`;}).join(''); currentReportTitle='Per Department Report'; currentReportRows=depts.map(d=>{let list=payrolls.filter(p=>p.dept===d && p.month===settings.month && p.year===settings.year); let gr=list.reduce((a,b)=>a+Number(b.gross),0), net=list.reduce((a,b)=>a+Number(b.net),0); return [d+' ('+list.length+' staff)',d,gr.toLocaleString(),'-','-','-',net.toLocaleString()];});}
+function reportDirector(){let list=payrolls.filter(p=>p.month===settings.month && p.year===settings.year); let gr=list.reduce((a,b)=>a+Number(b.gross),0), nssf=list.reduce((a,b)=>a+Number(b.nssf),0), paye=list.reduce((a,b)=>a+Number(b.paye),0), lst=list.reduce((a,b)=>a+Number(b.lst),0), net=list.reduce((a,b)=>a+Number(b.net),0); document.getElementById('reportLabel').innerText=`📋 Director: Gross ${settings.currency} ${gr.toLocaleString()} | NSSF ${settings.currency} ${nssf.toLocaleString()} | PAYE ${settings.currency} ${paye.toLocaleString()} | LST ${settings.currency} ${lst.toLocaleString()} | NET ${settings.currency} ${net.toLocaleString()}`; document.getElementById('reportBody').innerHTML=`<tr><td>DIRECTOR SUMMARY</td><td>${list.length} Staff</td><td>${gr.toLocaleString()}</td><td>${nssf.toLocaleString()}</td><td>${paye.toLocaleString()}</td><td>${lst.toLocaleString()}</td><td>${net.toLocaleString()}</td></tr>`; currentReportTitle=`Director Summary - ${settings.month} ${settings.year}`; currentReportRows=[['DIRECTOR SUMMARY',list.length+' Staff',gr.toLocaleString(),nssf.toLocaleString(),paye.toLocaleString(),lst.toLocaleString(),net.toLocaleString()]]; if(confirm(`DIRECTOR REPORT\nGross: ${gr}\nNSSF: ${nssf}\nPAYE: ${paye}\nLST: ${lst}\nNET: ${net}\n\nPrint this Director Summary?`)) printCurrentReport();}
+function reportAllStaff(){document.getElementById('reportLabel').innerText='👥 All Active Staff'; document.getElementById('reportBody').innerHTML=employees.map(e=>{let r=calcPay(Number(e.basic),Number(e.trans),Number(e.house),Number(e.lunch),0,0); return `<tr><td>${e.name}</td><td>${e.dept}</td><td>${r.gross.toLocaleString()}</td><td>${r.nssf.toLocaleString()}</td><td>${r.paye.toLocaleString()}</td><td>${r.lst.toLocaleString()}</td><td>${r.net.toLocaleString()}</td></tr>`;}).join(''); currentReportTitle='All Staff List'; currentReportRows=employees.map(e=>{let r=calcPay(Number(e.basic),Number(e.trans),Number(e.house),Number(e.lunch),0,0); return [e.name,e.dept,r.gross.toLocaleString(),r.nssf.toLocaleString(),r.paye.toLocaleString(),r.lst.toLocaleString(),r.net.toLocaleString()];});}
+function refreshAttEmp(){document.getElementById('attLog').innerHTML=attendance.slice(-30).reverse().map(a=>`<p>${a}</p>`).join('')||'No attendance yet';}
+function markAttendance(){let no=document.getElementById('att_emp').value; let e=employees.find(x=>x.no===no); let st=document.getElementById('att_status').value; if(!e) return alert('Select staff'); let line=`${new Date().toISOString().slice(0,10)} - ${e.name} (${e.no}) - ${st}`; attendance.push(line); saveAll(); refreshAttEmp(); alert('✅ '+line);}
+function saveSettings(){settings.company=document.getElementById('set_company').value; settings.currency=document.getElementById('set_curr').value; settings.month=document.getElementById('set_month').value; settings.year=document.getElementById('set_year').value; saveAll(); alert('✅ Settings saved!'); document.getElementById('sideCompany').innerText=settings.company;}
+function backupData(){alert('✅ Backup simulated - In Python it creates paymaster_backup_ file. In HTML, data is saved in browser.');}
+</script>
+</body>
+</html>
